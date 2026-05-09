@@ -23,7 +23,23 @@ interface Prompt {
   authorId?: string;
   isPublished: boolean;
   requiresMedia: boolean;
+  modelUsed?: string;
+  generationParams?: {
+    prompt?: string;
+    negativePrompt?: string;
+    seed?: number;
+    guidanceScale?: number;
+    steps?: number;
+    sampler?: string;
+    aspectRatio?: string;
+  };
+  stats?: {
+    likes: number;
+    views: number;
+    favourites: number;
+  };
 }
+
 
 export default function AdminPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -421,8 +437,64 @@ export default function AdminPage() {
                     {isUploading ? "..." : "Upload"}
                   </label>
                 </div>
+              <div className={styles.row}>
+                <div className={styles.inputGroup}>
+                  <label>AI Model Used</label>
+                  <select 
+                    value={editingPrompt.modelUsed || ""} 
+                    onChange={(e) => setEditingPrompt({...editingPrompt, modelUsed: e.target.value})}
+                  >
+                    <option value="">Select Model</option>
+                    <option value="FLUX.1 [dev]">FLUX.1 [dev]</option>
+                    <option value="FLUX.1 [schnell]">FLUX.1 [schnell]</option>
+                    <option value="Midjourney v6.1">Midjourney v6.1</option>
+                    <option value="Stable Diffusion 3">Stable Diffusion 3</option>
+                    <option value="DALL-E 3">DALL-E 3</option>
+                  </select>
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>Aspect Ratio</label>
+                  <input 
+                    placeholder="e.g. 16:9"
+                    value={editingPrompt.generationParams?.aspectRatio || ""} 
+                    onChange={(e) => setEditingPrompt({
+                      ...editingPrompt, 
+                      generationParams: { ...(editingPrompt.generationParams || {}), aspectRatio: e.target.value }
+                    })}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.techParams}>
+                <h3>Generation Parameters</h3>
+                <div className={styles.row}>
+                  <div className={styles.inputGroup}>
+                    <label>Seed</label>
+                    <input 
+                      type="number"
+                      value={editingPrompt.generationParams?.seed || ""} 
+                      onChange={(e) => setEditingPrompt({
+                        ...editingPrompt, 
+                        generationParams: { ...(editingPrompt.generationParams || {}), seed: parseInt(e.target.value) }
+                      })}
+                    />
+                  </div>
+                  <div className={styles.inputGroup}>
+                    <label>Guidance Scale (CFG)</label>
+                    <input 
+                      type="number"
+                      step="0.1"
+                      value={editingPrompt.generationParams?.guidanceScale || ""} 
+                      onChange={(e) => setEditingPrompt({
+                        ...editingPrompt, 
+                        generationParams: { ...(editingPrompt.generationParams || {}), guidanceScale: parseFloat(e.target.value) }
+                      })}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
+
             <div className={styles.modalFooter}>
               <button type="submit" className={styles.saveBtn}>
                 <Save size={18} /> Confirm Changes

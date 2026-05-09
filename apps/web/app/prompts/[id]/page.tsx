@@ -1,4 +1,5 @@
-import { connectDB, Prompt } from "@repo/database";
+import { connectDB, Prompt, User } from "@repo/database";
+
 import { notFound } from "next/navigation";
 import styles from "./PromptDetail.module.css";
 import Link from "next/link";
@@ -26,8 +27,15 @@ export default async function PromptDetailPage({ params }: PageProps) {
   const prompt = await (Prompt as any).findOne({ id });
   if (!prompt) notFound();
 
-  // Fetch more by admin (limit 4)
-  const morePrompts = await (Prompt as any).find({ id: { $ne: id }, isPublished: true }).limit(4);
+  // Increment views
+  await (Prompt as any).updateOne({ id }, { $inc: { 'stats.views': 1 } });
+
+
+  // Fetch author
+  const author = prompt.authorId ? await (User as any).findOne({ id: prompt.authorId }) : null;
+
+  // Increment views in background (optional, but good for UX)
+  // For now we just display the stats from DB
 
   return (
     <div className={styles.container}>
@@ -68,22 +76,24 @@ export default async function PromptDetailPage({ params }: PageProps) {
           </div>
 
           <div className={styles.authorCard}>
-            <img src="/images/admin.jpg" className={styles.avatar} alt="Admin" />
+            <div className={styles.avatar}>
+              {author?.username?.charAt(0).toUpperCase() || "A"}
+            </div>
             <div className={styles.authorInfo}>
-              <h3>Prompt Curator</h3>
-              <p>Verified Artist • @admin</p>
+              <h3>{author?.username || "System Admin"}</h3>
+              <p>{author?.role || "Verified Creator"} • @{author?.username || "admin"}</p>
             </div>
             <button className={styles.followBtn}>Follow</button>
           </div>
 
           <div className={styles.statsRow}>
             <div className={styles.statItem}>
-              <span className={styles.statValue}>12.4k</span>
+              <span className={styles.statValue}>{prompt.stats?.views || 0}</span>
               <span className={styles.statLabel}><Eye size={14} /> views</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statValue}>1.2k</span>
-              <span className={styles.statLabel}><Heart size={14} /> favorites</span>
+              <span className={styles.statValue}>{prompt.stats?.likes || 0}</span>
+              <span className={styles.statLabel}><Heart size={14} /> likes</span>
             </div>
           </div>
 
@@ -91,16 +101,37 @@ export default async function PromptDetailPage({ params }: PageProps) {
             <div className={styles.paramGroup}>
               <h4>Model & Engine</h4>
               <div className={styles.badgeWrapper}>
-                <span className={styles.badge}>FLUX.1 [Dev]</span>
+                <span className={styles.badge}>{prompt.modelUsed || "Standard Model"}</span>
               </div>
             </div>
 
-            <div className={styles.paramGroup}>
-              <h4>Category</h4>
-              <div className={styles.badgeWrapper}>
-                <span className={styles.badge}>{prompt.category}</span>
+            <div className={styles.row}>
+              <div className={styles.paramGroup}>
+                <h4>Category</h4>
+                <div className={styles.badgeWrapper}>
+                  <span className={styles.badge}>{prompt.category}</span>
+                </div>
               </div>
+              {prompt.generationParams?.aspectRatio && (
+                <div className={styles.paramGroup}>
+                  <h4>Aspect Ratio</h4>
+                  <div className={styles.badgeWrapper}>
+                    <span className={styles.badge}>{prompt.generationParams.aspectRatio}</span>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {prompt.generationParams && (
+              <div className={styles.techDetails}>
+                <h4>Technical Parameters</h4>
+                <div className={styles.techGrid}>
+                  {prompt.generationParams.seed && <div><span>Seed</span> <code>{prompt.generationParams.seed}</code></div>}
+                  {prompt.generationParams.guidanceScale && <div><span>Guidance</span> <code>{prompt.generationParams.guidanceScale}</code></div>}
+                  {prompt.generationParams.steps && <div><span>Steps</span> <code>{prompt.generationParams.steps}</code></div>}
+                </div>
+              </div>
+            )}
 
             <div className={styles.paramGroup}>
               <h4>Master Prompt</h4>
@@ -110,8 +141,26 @@ export default async function PromptDetailPage({ params }: PageProps) {
               </div>
             </div>
           </div>
+
+          <div className={styles.commentsSection}>
+            <h3>Community Interaction ({prompt.comments?.length || 0})</h3>
+            <div className={styles.commentInputWrapper}>
+              <input placeholder="Add a thought..." className={styles.commentInput} />
+              <button className={styles.postBtn}>Post</button>
+            </div>
+            <div className={styles.commentsList}>
+              {prompt.comments?.map((c: any) => (
+                <div key={c.id} className={styles.commentItem}>
+                  <strong>@{c.username}</strong>
+                  <p>{c.content}</p>
+                </div>
+              ))}
+              {(prompt.comments?.length || 0) === 0 && <p className={styles.noComments}>Be the first to comment!</p>}
+            </div>
+          </div>
         </section>
       </div>
+
 
       {/* More by @admin */}
       <section className={styles.moreSection}>

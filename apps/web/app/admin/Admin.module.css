@@ -364,7 +364,23 @@
 }
 
 
+.techParams {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  border-radius: 16px;
+  margin-top: 1rem;
+}
+
+.techParams h3 {
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+  color: var(--primary);
+  font-family: var(--font-display);
+}
+
 .saveBtn {
+
   background: var(--primary);
   color: white;
   padding: 1rem 2rem;
