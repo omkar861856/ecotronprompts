@@ -1,16 +1,13 @@
-ecotron.co.in, www.ecotron.co.in {
+:80 {
     reverse_proxy web:3000
 
     encode zstd gzip
 
     header {
-        # Enable HSTS
+        # Enable HSTS (Cloudflare will handle this, but good to have)
         Strict-Transport-Security "max-age=31536000;"
-        # Prevent Clickjacking
         X-Frame-Options "DENY"
-        # Prevent MIME sniffing
         X-Content-Type-Options "nosniff"
-        # Referrer Policy
         Referrer-Policy "strict-origin-when-cross-origin"
     }
 
