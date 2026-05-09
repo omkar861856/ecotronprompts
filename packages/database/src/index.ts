@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 export * from './schema';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.DATABASE_URL;
+
 
 export const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
