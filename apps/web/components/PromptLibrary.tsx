@@ -36,11 +36,9 @@ export const PromptLibrary = () => {
         
         const validPrompts = data.filter((p: any) => {
           if (p.isPublished === false) return false;
-          const needsMedia = p.requiresMedia || p.category?.trim().toLowerCase() === "media";
-          const hasMedia = p.mediaUrl && p.mediaUrl.trim() !== "";
-          if (needsMedia && !hasMedia) return false;
           return true; 
         });
+
         
         setPrompts(validPrompts);
       } catch (error) {

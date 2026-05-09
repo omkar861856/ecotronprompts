@@ -304,14 +304,32 @@ export default function AdminPage() {
 
       {/* Prompt Modal */}
       {editingPrompt && (
-        <div className={styles.modalOverlay}>
-          <form className={styles.modal} onSubmit={handleSavePrompt}>
+        <div className={styles.modalOverlay} onClick={() => setEditingPrompt(null)}>
+          <form className={styles.modal} onSubmit={handleSavePrompt} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingPrompt.id ? "Edit Prompt" : "Create New Prompt"}</h2>
               <button type="button" onClick={() => setEditingPrompt(null)}><X size={24} /></button>
             </div>
             <div className={styles.modalBody}>
+              {editingPrompt.mediaUrl && (
+                <div className={styles.mediaPreview}>
+                  {editingPrompt.mediaType === "video" ? (
+                    <video src={editingPrompt.mediaUrl} controls className={styles.previewContent} />
+                  ) : (
+                    <img src={editingPrompt.mediaUrl} alt="Preview" className={styles.previewContent} />
+                  )}
+                  <button 
+                    type="button" 
+                    className={styles.removeMediaBtn}
+                    onClick={() => setEditingPrompt({...editingPrompt, mediaUrl: "", mediaType: "image"})}
+                  >
+                    <Trash2 size={14} /> Remove Media
+                  </button>
+                </div>
+              )}
+
               <div className={styles.inputGroup}>
+
                 <label>Prompt Author</label>
                 <select 
                   value={editingPrompt.authorId || ""} 
