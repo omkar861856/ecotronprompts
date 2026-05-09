@@ -3,9 +3,17 @@ http://www.ecotron.co.in {
     redir http://ecotron.co.in{uri}
 }
 
-# Main site
+# Main site & Assets
 http://ecotron.co.in {
-    reverse_proxy web:3000
+    # Proxy prompt assets directly to MinIO
+    handle_path /prompt-assets/* {
+        reverse_proxy minio:9000
+    }
+
+    # Proxy everything else to the Web App
+    handle {
+        reverse_proxy web:3000
+    }
 
     encode zstd gzip
 

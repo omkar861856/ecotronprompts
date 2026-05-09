@@ -43,10 +43,9 @@ export async function POST(request: Request) {
     
     console.log(`[${t()}] [UPLOAD] Upload complete.`);
 
-    const host = request.headers.get('host') || 'localhost:3000';
-    const baseUrl = host.split(':')[0]; // Get the IP or domain without the port
-    const url = `http://${baseUrl}:9000/prompt-assets/${fileName}`;
-    console.log(`[${t()}] [UPLOAD] Returning dynamic URL: ${url}`);
+    const url = `/prompt-assets/${fileName}`;
+    console.log(`[${t()}] [UPLOAD] Returning relative URL: ${url}`);
+
     
     return NextResponse.json({ url, mediaType });
   } catch (error: any) {

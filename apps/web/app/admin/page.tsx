@@ -115,25 +115,37 @@ export default function AdminPage() {
     }
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+  
   const handleSavePrompt = async (e: React.FormEvent) => {
     e.preventDefault();
-    const method = editingPrompt?.id ? "PUT" : "POST";
-    const url = editingPrompt?.id ? `/api/prompts/${editingPrompt.id}` : "/api/prompts";
+    if (isSaving) return;
+    setIsSaving(true);
     
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editingPrompt),
-    });
-    
-    if (res.ok) {
-      setEditingPrompt(null);
-      fetchPrompts();
-    } else {
-      const errorData = await res.json();
-      alert(`Error saving prompt: ${errorData.error || "Unknown error"}`);
+    try {
+      const method = editingPrompt?.id ? "PUT" : "POST";
+      const url = editingPrompt?.id ? `/api/prompts/${editingPrompt.id}` : "/api/prompts";
+      
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingPrompt),
+      });
+      
+      if (res.ok) {
+        setEditingPrompt(null);
+        fetchPrompts();
+      } else {
+        const errorData = await res.json();
+        alert(`Error saving prompt: ${errorData.error || "Unknown error"}`);
+      }
+    } catch (err) {
+      console.error("Save failed:", err);
+    } finally {
+      setIsSaving(false);
     }
   };
+
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -498,10 +510,11 @@ export default function AdminPage() {
             </div>
 
             <div className={styles.modalFooter}>
-              <button type="submit" className={styles.saveBtn}>
-                <Save size={18} /> Confirm Changes
+              <button type="submit" className={styles.saveBtn} disabled={isSaving}>
+                <Save size={18} /> {isSaving ? "Saving..." : "Confirm Changes"}
               </button>
             </div>
+
           </form>
         </div>
       )}
