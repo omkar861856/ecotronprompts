@@ -1,10 +1,15 @@
-:80 {
+# Redirect www to apex
+http://www.ecotron.co.in {
+    redir http://ecotron.co.in{uri}
+}
+
+# Main site
+http://ecotron.co.in {
     reverse_proxy web:3000
 
     encode zstd gzip
 
     header {
-        # Enable HSTS (Cloudflare will handle this, but good to have)
         Strict-Transport-Security "max-age=31536000;"
         X-Frame-Options "DENY"
         X-Content-Type-Options "nosniff"
