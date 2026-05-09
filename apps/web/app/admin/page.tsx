@@ -437,7 +437,9 @@ export default function AdminPage() {
                     {isUploading ? "..." : "Upload"}
                   </label>
                 </div>
+              </div>
               <div className={styles.row}>
+
                 <div className={styles.inputGroup}>
                   <label>AI Model Used</label>
                   <select 
