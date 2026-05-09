@@ -2,7 +2,6 @@ services:
   web:
     image: ghcr.io/${GITHUB_REPOSITORY}/web:latest
     container_name: ecotron-web
-
     restart: always
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -17,20 +16,7 @@ services:
       - redis
       - ollama
 
-
-  minio:
-    image: minio/minio:latest
-    container_name: ecotron-minio
-    restart: always
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
-      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
-    volumes:
-      - minio_data:/data
-    command: server /data --console-address ":9001"
-
   mongodb:
-
     image: mongo:latest
     container_name: ecotron-mongodb
     restart: always
@@ -41,7 +27,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
 
   redis:
-    image: redis:7-alpine
+    image: redis:alpine
     container_name: ecotron-redis
     restart: always
 
@@ -51,22 +37,6 @@ services:
     restart: always
     volumes:
       - ollama_data:/root/.ollama
-
-  crawl4ai:
-    image: unclecode/crawl4ai:latest
-    container_name: ecotron-crawl4ai
-    restart: always
-    ports:
-      - "11235:11235"
-
-  init-ollama:
-
-    image: curlimages/curl:latest
-    container_name: ecotron-init-ollama
-    depends_on:
-      - ollama
-    command: >
-      sh -c "sleep 5 && curl -X POST http://ollama:11434/api/pull -d '{\"name\": \"llama3\"}'"
 
   caddy:
     image: caddy:latest
@@ -80,7 +50,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
       - prompt_uploads:/app/uploads
-
     depends_on:
       - web
 
@@ -89,6 +58,4 @@ volumes:
   ollama_data:
   caddy_data:
   caddy_config:
-  minio_data:
-
   prompt_uploads:
