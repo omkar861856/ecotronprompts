@@ -34,8 +34,9 @@ export default async function PromptDetailPage({ params }: PageProps) {
   // Fetch author
   const author = prompt.authorId ? await (User as any).findOne({ id: prompt.authorId }) : null;
 
-  // Increment views in background (optional, but good for UX)
-  // For now we just display the stats from DB
+  // Fetch more by admin (limit 4)
+  const morePrompts = await (Prompt as any).find({ id: { $ne: id }, isPublished: true }).limit(4);
+
 
   return (
     <div className={styles.container}>
