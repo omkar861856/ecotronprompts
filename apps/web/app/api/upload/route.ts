@@ -31,17 +31,9 @@ export async function POST(request: Request) {
 
     const mediaType = file.type.startsWith('video') ? 'video' : 'image';
     
-    console.log(`[${t()}] [UPLOAD] Uploading to MinIO as ${fileName}...`);
+    console.log(`[${t()}] [UPLOAD] Saving to local storage as ${fileName}...`);
     
-    // Add a 15-second timeout to the upload operation
-    const uploadPromise = uploadFile(fileName, buffer, {
-      'Content-Type': file.type,
-    });
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Upload to MinIO timed out after 15s')), 15000)
-    );
-
-    await Promise.race([uploadPromise, timeoutPromise]);
+    await uploadFile(fileName, buffer);
     
     console.log(`[${t()}] [UPLOAD] Upload complete.`);
 
@@ -49,6 +41,7 @@ export async function POST(request: Request) {
     const host = request.headers.get('host') || 'ecotron.co.in';
     const url = `${protocol}://${host}/prompt-assets/${fileName}`;
     console.log(`[${t()}] [UPLOAD] Returning absolute URL: ${url}`);
+
 
 
     

@@ -5,13 +5,10 @@ http://www.ecotron.co.in {
 
 # Main site & Assets
 http://ecotron.co.in {
-    # Proxy prompt assets to MinIO (Using explicit container name)
+    # Serve prompt assets directly from the shared volume
     handle /prompt-assets/* {
-        reverse_proxy ecotron-minio:9000 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
+        file_server {
+            root /app/uploads
         }
     }
 

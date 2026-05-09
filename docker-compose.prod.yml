@@ -8,19 +8,15 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - MONGODB_URI=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379
-      - MINIO_ENDPOINT=minio
-      - MINIO_PORT=9000
-      - MINIO_USE_SSL=false
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - UPLOAD_DIR=/app/uploads
       - NEXT_PUBLIC_BASE_URL=https://ecotron.co.in
-
-
+    volumes:
+      - prompt_uploads:/app/uploads
     depends_on:
       - mongodb
       - redis
       - ollama
-      - minio
+
 
   minio:
     image: minio/minio:latest
@@ -83,6 +79,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+      - prompt_uploads:/app/uploads
+
     depends_on:
       - web
 
@@ -93,3 +91,4 @@ volumes:
   caddy_config:
   minio_data:
 
+  prompt_uploads:

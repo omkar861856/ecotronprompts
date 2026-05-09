@@ -1,50 +1,26 @@
-import * as Minio from 'minio';
+import fs from 'fs/promises';
+import path from 'path';
 
-const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT || 'minio',
-  port: parseInt(process.env.MINIO_PORT || '9000'),
-  useSSL: process.env.MINIO_USE_SSL === 'true',
-  accessKey: process.env.MINIO_ACCESS_KEY || 'admin',
-  secretKey: process.env.MINIO_SECRET_KEY || 'password',
-});
-
-const BUCKET_NAME = 'prompt-assets';
+// This will be a volume mapped in Docker
+const UPLOAD_DIR = process.env.UPLOAD_DIR || '/app/uploads';
 
 export const initStorage = async () => {
   try {
-    console.log(`[STORAGE] Checking bucket: ${BUCKET_NAME}`);
-    const exists = await minioClient.bucketExists(BUCKET_NAME);
-    if (!exists) {
-      console.log(`[STORAGE] Creating bucket: ${BUCKET_NAME}`);
-      await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
-    }
-    
-    // Always enforce public policy for the assets bucket
-    const policy = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Action: ['s3:GetObject'],
-          Effect: 'Allow',
-          Principal: '*',
-          Resource: [`arn:aws:s3:::${BUCKET_NAME}/*`],
-        },
-      ],
-    };
-    await minioClient.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy));
-    console.log(`[STORAGE] Bucket ${BUCKET_NAME} is ready and public.`);
+    await fs.mkdir(UPLOAD_DIR, { recursive: true });
+    console.log(`[STORAGE] Local upload directory ready at ${UPLOAD_DIR}`);
   } catch (err) {
-    console.error(`[STORAGE] Initialization error:`, err);
+    console.error(`[STORAGE] Failed to create upload directory:`, err);
   }
 };
 
-
 export const uploadFile = async (fileName: string, buffer: Buffer, metadata?: any) => {
-  return await minioClient.putObject(BUCKET_NAME, fileName, buffer, metadata);
+  const filePath = path.join(UPLOAD_DIR, fileName);
+  await fs.writeFile(filePath, buffer);
+  console.log(`[STORAGE] File saved to ${filePath}`);
+  return { success: true };
 };
 
 export const getFileUrl = async (fileName: string) => {
-  return await minioClient.presignedGetObject(BUCKET_NAME, fileName, 24 * 60 * 60);
+  // In local mode, the URL is just the path
+  return `/prompt-assets/${fileName}`;
 };
-
-export { minioClient };
