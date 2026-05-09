@@ -6,10 +6,10 @@ http://www.ecotron.co.in {
 # Main site & Assets
 http://ecotron.co.in {
     # Serve prompt assets directly from the shared volume
-    handle /prompt-assets/* {
-        file_server {
-            root /app/uploads
-        }
+    # handle_path strips /prompt-assets/ so it looks directly in /app/uploads/
+    handle_path /prompt-assets/* {
+        root * /app/uploads
+        file_server
     }
 
     # Proxy everything else to the Web App
