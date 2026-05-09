@@ -47,8 +47,12 @@ export async function POST(request: Request) {
     await invalidateCache(CACHE_KEYS.PROMPTS_LIST);
     
     return NextResponse.json(prompt);
-  } catch (error) {
+  } catch (error: any) {
     console.error('[API] POST error:', error);
-    return NextResponse.json({ error: 'Failed to create prompt' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to create prompt', 
+      details: error.message 
+    }, { status: 500 });
   }
 }
+

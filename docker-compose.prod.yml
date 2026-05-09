@@ -14,8 +14,21 @@ services:
       - mongodb
       - redis
       - ollama
+      - minio
+
+  minio:
+    image: minio/minio:latest
+    container_name: ecotron-minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
 
   mongodb:
+
     image: mongo:latest
     container_name: ecotron-mongodb
     restart: always
@@ -37,7 +50,15 @@ services:
     volumes:
       - ollama_data:/root/.ollama
 
+  crawl4ai:
+    image: unclecode/crawl4ai:latest
+    container_name: ecotron-crawl4ai
+    restart: always
+    ports:
+      - "11235:11235"
+
   init-ollama:
+
     image: curlimages/curl:latest
     container_name: ecotron-init-ollama
     depends_on:
@@ -64,3 +85,5 @@ volumes:
   ollama_data:
   caddy_data:
   caddy_config:
+  minio_data:
+

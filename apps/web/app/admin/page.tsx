@@ -336,6 +336,15 @@ export default function AdminPage() {
               </div>
 
               <div className={styles.inputGroup}>
+                <label>Short Description (SEO & Listing)</label>
+                <input 
+                  value={editingPrompt.description || ""} 
+                  onChange={(e) => setEditingPrompt({...editingPrompt, description: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
                 <label>Prompt Context (The Logic)</label>
                 <textarea 
                   className={styles.textarea}
@@ -344,6 +353,16 @@ export default function AdminPage() {
                   required
                 />
               </div>
+
+              <div className={styles.inputGroup}>
+                <label>Tags (Comma separated)</label>
+                <input 
+                  value={editingPrompt.tags?.join(", ") || ""} 
+                  onChange={(e) => setEditingPrompt({...editingPrompt, tags: e.target.value.split(",").map(t => t.trim()).filter(t => t !== "")})}
+                  placeholder="e.g. flux, realistic, hyperdetailed"
+                />
+              </div>
+
 
               <div className={styles.row}>
                 <div className={styles.inputGroup}>
