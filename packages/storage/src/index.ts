@@ -1,7 +1,7 @@
 import * as Minio from 'minio';
 
 const minioClient = new Minio.Client({
-  endPoint: process.env.MINIO_ENDPOINT || 'localhost',
+  endPoint: process.env.MINIO_ENDPOINT || 'minio',
   port: parseInt(process.env.MINIO_PORT || '9000'),
   useSSL: process.env.MINIO_USE_SSL === 'true',
   accessKey: process.env.MINIO_ACCESS_KEY || 'admin',
@@ -11,9 +11,15 @@ const minioClient = new Minio.Client({
 const BUCKET_NAME = 'prompt-assets';
 
 export const initStorage = async () => {
-  const exists = await minioClient.bucketExists(BUCKET_NAME);
-  if (!exists) {
-    await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
+  try {
+    console.log(`[STORAGE] Checking bucket: ${BUCKET_NAME}`);
+    const exists = await minioClient.bucketExists(BUCKET_NAME);
+    if (!exists) {
+      console.log(`[STORAGE] Creating bucket: ${BUCKET_NAME}`);
+      await minioClient.makeBucket(BUCKET_NAME, 'us-east-1');
+    }
+    
+    // Always enforce public policy for the assets bucket
     const policy = {
       Version: '2012-10-17',
       Statement: [
@@ -26,9 +32,12 @@ export const initStorage = async () => {
       ],
     };
     await minioClient.setBucketPolicy(BUCKET_NAME, JSON.stringify(policy));
-    console.log(`Bucket ${BUCKET_NAME} created and set to public`);
+    console.log(`[STORAGE] Bucket ${BUCKET_NAME} is ready and public.`);
+  } catch (err) {
+    console.error(`[STORAGE] Initialization error:`, err);
   }
 };
+
 
 export const uploadFile = async (fileName: string, buffer: Buffer, metadata?: any) => {
   return await minioClient.putObject(BUCKET_NAME, fileName, buffer, metadata);

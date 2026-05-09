@@ -9,9 +9,12 @@ services:
       - MONGODB_URI=${DATABASE_URL}
       - REDIS_URL=redis://redis:6379
       - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
       - NEXT_PUBLIC_BASE_URL=https://ecotron.co.in
+
 
     depends_on:
       - mongodb
