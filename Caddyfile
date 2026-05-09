@@ -1,4 +1,4 @@
-ecotron.co.in {
+ecotron.co.in, www.ecotron.co.in {
     reverse_proxy web:3000
 
     encode zstd gzip
