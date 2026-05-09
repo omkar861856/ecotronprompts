@@ -5,14 +5,19 @@ http://www.ecotron.co.in {
 
 # Main site & Assets
 http://ecotron.co.in {
-    # Proxy prompt assets to MinIO (Preserving the bucket path)
+    # Proxy prompt assets to MinIO (Using explicit container name)
     handle /prompt-assets/* {
-        reverse_proxy minio:9000
+        reverse_proxy ecotron-minio:9000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
     }
 
     # Proxy everything else to the Web App
     handle {
-        reverse_proxy web:3000
+        reverse_proxy ecotron-web:3000
     }
 
     encode zstd gzip
