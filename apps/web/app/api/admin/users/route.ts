@@ -8,12 +8,15 @@ export async function GET() {
   await connectDB();
   try {
     const users = await (User as any).find({}).sort({ createdAt: -1 });
-    return NextResponse.json(users);
+    return NextResponse.json(Array.isArray(users) ? users : []);
   } catch (error) {
     console.error('[API] Users GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
+    // Return empty array to prevent frontend crash, but keep 500 status if preferred
+    // Actually, for a robust UI, returning [] is safer.
+    return NextResponse.json([], { status: 500 });
   }
 }
+
 
 export async function POST(request: Request) {
   await connectDB();

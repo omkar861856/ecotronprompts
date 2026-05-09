@@ -53,16 +53,37 @@ export default function AdminPage() {
   };
 
   const fetchPrompts = async () => {
-    const res = await fetch("/api/prompts", { cache: 'no-store' });
-    const data = await res.json();
-    setPrompts(data);
+    try {
+      const res = await fetch("/api/prompts", { cache: 'no-store' });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setPrompts(data);
+      } else {
+        console.error("Prompts data is not an array:", data);
+        setPrompts([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch prompts:", err);
+      setPrompts([]);
+    }
   };
 
   const fetchUsers = async () => {
-    const res = await fetch("/api/admin/users");
-    const data = await res.json();
-    setUsers(data);
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setUsers(data);
+      } else {
+        console.error("Users data is not an array:", data);
+        setUsers([]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+      setUsers([]);
+    }
   };
+
 
   useEffect(() => {
     if (isLoggedIn) {
