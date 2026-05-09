@@ -43,8 +43,11 @@ export async function POST(request: Request) {
     
     console.log(`[${t()}] [UPLOAD] Upload complete.`);
 
-    const url = `/prompt-assets/${fileName}`;
-    console.log(`[${t()}] [UPLOAD] Returning relative URL: ${url}`);
+    const protocol = request.headers.get('x-forwarded-proto') || 'https';
+    const host = request.headers.get('host') || 'ecotron.co.in';
+    const url = `${protocol}://${host}/prompt-assets/${fileName}`;
+    console.log(`[${t()}] [UPLOAD] Returning absolute URL: ${url}`);
+
 
     
     return NextResponse.json({ url, mediaType });
