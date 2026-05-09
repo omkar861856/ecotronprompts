@@ -26,7 +26,9 @@ export async function POST(request: Request) {
     console.log(`[${t()}] [UPLOAD] File received: ${file.name}, size: ${file.size}, type: ${file.type}`);
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${uuidv4()}-${file.name}`;
+    const sanitizedName = file.name.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const fileName = `${uuidv4()}-${sanitizedName}`;
+
     const mediaType = file.type.startsWith('video') ? 'video' : 'image';
     
     console.log(`[${t()}] [UPLOAD] Uploading to MinIO as ${fileName}...`);
